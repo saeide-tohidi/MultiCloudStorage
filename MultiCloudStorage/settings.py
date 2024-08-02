@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -25,6 +26,7 @@ SECRET_KEY = "django-insecure-@i&&z7-)jcu(=h%6cyy(gnic5v=k1u#n%49t=9k^wwj+t%tqqy
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+SERVER_MODE = "localhost"
 ALLOWED_HOSTS = []
 
 AUTH_USER_MODEL = "users.User"
@@ -116,7 +118,41 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
-STATIC_URL = "static/"
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, "static"),
+]
+
+PUBLIC_MEDIA_LOCATION = os.environ.get("PUBLIC_MEDIA_LOCATION", "local")
+
+if SERVER_MODE == "localhost":
+    STATIC_URL = "/staticfiles/"
+    STATIC_ROOT = "staticfiles/"
+    MEDIA_URL = "/mediafiles/"
+    MEDIA_ROOT = os.path.join(BASE_DIR, "mediafiles")
+else:
+    # settings
+    AWS_ACCESS_KEY_ID = os.environ.get("AWS_ACCESS_KEY_ID", "")
+    AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY", "")
+    AWS_S3_CUSTOM_DOMAIN = "myc.nyc3.cdn.digitaloceanspaces.com"
+    AWS_S3_ENDPOINT_URL = "https://myc.nyc3.digitaloceanspaces.com"
+    AWS_S3_OBJECT_PARAMETERS = {
+        "CacheControl": "max-age=86400",
+    }
+    AWS_DEFAULT_ACL = "public-read"
+
+    # static settings
+    AWS_LOCATION = "static"
+    STATICFILES_STORAGE = "MasterYourCources.storage_backends.StaticStorage"
+    STATIC_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/{AWS_LOCATION}/"
+
+    # public media settings
+    PUBLIC_MEDIA_LOCATION = os.environ.get("PUBLIC_MEDIA_LOCATION", "local")
+    DEFAULT_FILE_STORAGE = "MasterYourCources.storage_backends.PublicMediaStorage"
+    MEDIA_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/{PUBLIC_MEDIA_LOCATION}/"
+
+    IMAGEKIT_DEFAULT_CACHEFILE_STRATEGY = (
+        "MasterYourCources.storage_backends.FixJustInTime"
+    )
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
