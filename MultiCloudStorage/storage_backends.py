@@ -29,3 +29,10 @@ class PublicMediaStorage(S3Boto3Storage):
     location = ""
     default_acl = "public-read"
     custom_domain = f"myc.nyc3.cdn.digitaloceanspaces.com/{bucket_name}"
+
+
+class VideoAzureStorage(AzureStorage):
+    account_name = settings.AZURE_ACCOUNT_NAME
+    account_key = settings.AZURE_ACCOUNT_KEY
+    azure_container = "myclms"
+    expiration_secs = None

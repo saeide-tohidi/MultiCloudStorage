@@ -39,7 +39,10 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "storages",
+    "django_celery_results",
     "users.apps.UsersConfig",
+    "video.apps.VideoConfig",
 ]
 
 MIDDLEWARE = [
@@ -158,3 +161,24 @@ else:
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+
+# AZURE STORAGE
+AZURE_ACCOUNT_NAME = os.environ.get("AZURE_ACCOUNT_NAME", default="account_name")
+AZURE_ACCOUNT_KEY = os.environ.get("AZURE_ACCOUNT_KEY", default="test")
+AZURE_CONTAINER = os.environ.get("AZURE_CONTAINER", default="container")
+
+# File Storage for Video Files IN AZURE
+VIDEO_FILE_STORAGE = "MasterYourCources.storage_backends.VideoAzureStorage"
+VIDEO_MEDIA_URL = (
+    f"https://{AZURE_ACCOUNT_NAME}.blob.core.windows.net/{AZURE_CONTAINER}"
+)
+
+# BITMOVIN CONFIG
+BITMOVIN_PLAYER_KEY = os.environ.get("BITMOVIN_PLAYER_KEY", default="test")
+BITMOVIN_API_KEY = os.environ.get("BITMOVIN_API_KEY", default="test")
+
+
+# CELERY
+CELERY_BROKER_URL = os.environ.get("REDIS_URI", default="redis://localhost:6379")
+CELERY_RESULT_BACKEND = "django-db"
